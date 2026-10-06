@@ -113,6 +113,15 @@ python brief.py --slot h18 --dry-run --force      # test the daily summary, no e
 - **A daily heartbeat guards against silent failures.** After the close (6:35 PM) a
   separate `MarketVibes2_Heartbeat` task checks that the day's hourly runs all reached
   `history.csv`; if any are missing it fires a desktop alert.
+- **Going back to sleep after a run depends on the Windows lock screen.** The hourly and
+  heartbeat tasks wake the PC but do not sleep it again themselves. That is done by a
+  separate `SleepAfterWakeTasks` task from the ProjectRecall project
+  (`scripts\sleep_after_wake.ps1` there), which sleeps the PC once the run has finished and
+  the PC is still on the lock screen. **Fail-safe: keep "require sign-in on wake" turned on**
+  (Settings > Accounts > Sign-in options). With it off there is no lock screen, any stray
+  key press or mouse bump after a wake counts as someone at the desk, and the PC stays on
+  until it is put to sleep by hand. Decisions are logged to
+  `%LOCALAPPDATA%\ProjectRecall\sleep_after_wake.log`.
 - **Task Scheduler wakes the PC from sleep, but not from shutdown.** Each hourly run
   has its own `-WakeToRun` trigger, so the machine wakes itself for every slot even
   from sleep (wake timers must be enabled in Windows power settings). A full shutdown
